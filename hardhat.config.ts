@@ -11,9 +11,9 @@ const config: HardhatUserConfig = {
       url: process.env.SEPOLIA_URL || "",
       accounts: [process.env.PRIVATE_KEY || ""],
     },
-    // hardhat: {
-    //   chainId: 11155111
-    // }
+    hardhat: {
+      chainId: 11155111
+    }
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
