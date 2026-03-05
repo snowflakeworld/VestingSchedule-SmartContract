@@ -19,13 +19,7 @@ describe("TokenVestingSchedule", function () {
   const DAY_SECONDS = 3600 * 24;
   const ONE_YEAR = 365 * DAY_SECONDS;
   const ONE_MONTH = 30 * DAY_SECONDS;
-  const DENOMINATOR = 10000;
   const TEAM_PERCENT = 2000; // 20%
-  const ADVISOR_PERCENT = 500; // 5%
-  const INVESTOR_PERCENT = 2000; // 20%
-  const COMMUNITY_PERCENT = 2500; // 25%
-  const TREASURY_PERCENT = 2000; // 20%
-  const PUBLIC_SALE_PERCENT = 1000; // 10%
   const TOKEN_UNIT = 1000;
   const TOTAL_SUPPLY: bigint = BigInt(1000000000 * TOKEN_UNIT); // 1B * 10^3 tokens
   const TEAM_SUPPLY: bigint = BigInt((1000000000 * TOKEN_UNIT * 20) / 100);
