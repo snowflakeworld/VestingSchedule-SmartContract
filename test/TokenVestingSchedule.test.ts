@@ -1,4 +1,4 @@
-import { Addressable, ContractRunner, getUint } from "ethers";
+import { ContractRunner, Signer } from "ethers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
@@ -8,13 +8,13 @@ import { SnowMockToken, TokenVestingSchedule } from "../typechain-types";
 describe("TokenVestingSchedule", function () {
   let token: SnowMockToken;
   let vesting: TokenVestingSchedule;
-  let owner: Addressable;
-  let teamMember: Addressable;
-  let advisor: Addressable;
-  let investor: Addressable;
-  let communityMember: Addressable;
-  let treasury: Addressable;
-  let publicSaleParticipant: Addressable;
+  let owner: Signer;
+  let teamMember: Signer;
+  let advisor: Signer;
+  let investor: Signer;
+  let communityMember: Signer;
+  let treasury: Signer;
+  let publicSaleParticipant: Signer;
 
   const DAY_SECONDS = 3600 * 24;
   const ONE_YEAR = 365 * DAY_SECONDS;
@@ -273,11 +273,8 @@ describe("TokenVestingSchedule", function () {
       // Check vesting contract balance before claim
       const balanceBefore = await token.balanceOf(await vesting.getAddress());
 
-      // Casting to the expected Runner type
-      const memberRunner = teamMember as unknown as ContractRunner;
-
       // Claim tokens
-      await vesting.connect(memberRunner).claim();
+      await vesting.connect(teamMember).claim();
 
       // Check tokens were minted and transferred
       const teamBalance = await token.balanceOf(await teamMember.getAddress());
@@ -289,11 +286,8 @@ describe("TokenVestingSchedule", function () {
     });
 
     it("Should not claim before cliff", async function () {
-      // Casting to the expected Runner type
-      const memberRunner = teamMember as unknown as ContractRunner;
-
       // Don't fast forward
-      await expect(vesting.connect(memberRunner).claim()).to.be.revertedWith(
+      await expect(vesting.connect(teamMember).claim()).to.be.revertedWith(
         "Nothing to claim",
       );
     });
@@ -302,10 +296,7 @@ describe("TokenVestingSchedule", function () {
       // Fast forward 2 years
       await time.increase(2 * ONE_YEAR);
 
-      // Casting to the expected Runner type
-      const memberRunner = teamMember as unknown as ContractRunner;
-
-      await vesting.connect(memberRunner).claim();
+      await vesting.connect(teamMember).claim();
 
       const beneficiary = await vesting.beneficiaries(
         await teamMember.getAddress(),
@@ -361,12 +352,9 @@ describe("TokenVestingSchedule", function () {
     it("Non-owner cannot unlock treasury", async function () {
       const unlockAmount = TREASURY_SUPPLY / 4n;
 
-      // Casting to the expected Runner type
-      const memberRunner = teamMember as unknown as ContractRunner;
-
       await expect(
         vesting
-          .connect(memberRunner)
+          .connect(teamMember)
           .treasuryUnlock(await treasury.getAddress(), unlockAmount),
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
