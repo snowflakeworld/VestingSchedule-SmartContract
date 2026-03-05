@@ -106,7 +106,7 @@ describe("TokenVestingSchedule", function () {
     });
 
     it("Should add beneficiaries correctly", async function () {
-      const teamAmount = ethers.parseEther("200000"); // 20% tokens
+      const teamAmount = TEAM_SUPPLY; // 20% tokens
 
       await vesting.addBeneficiaries(
         [await teamMember.getAddress()],
