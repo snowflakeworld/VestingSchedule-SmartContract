@@ -11,7 +11,23 @@ interface ISnowToken is IERC20 {
 contract TokenVestingSchedule is Ownable {
     ISnowToken public immutable snowToken;
 
-    uint256 public constant TOTAL_SUPPLY = 1_000_000 * 10 ** 18;
+    uint256 public constant DENOMINATOR = 10000; // 100%
+    uint256 public constant TEAM_PERCENT = 2000; // 20%
+    uint256 public constant ADVISOR_PERCENT = 500; // 5%
+    uint256 public constant INVESTOR_PERCENT = 2000; // 20%
+    uint256 public constant COMMUNITY_PERCENT = 2500; // 25%
+    uint256 public constant TREASURY_PERCENT = 2000; // 20%
+    uint256 public constant PUBLIC_SALE_PERCENT = 1000; // 10%
+
+    uint256 public constant TOKEN_UNIT = 10 ** 3;
+    uint256 public constant TOTAL_SUPPLY = 1_000_000_000 * TOKEN_UNIT;
+    uint256 public constant TEAM_SUPPLY = (TOTAL_SUPPLY * TEAM_PERCENT) / DENOMINATOR;
+    uint256 public constant ADVISOR_SUPPLY = (TOTAL_SUPPLY * ADVISOR_PERCENT) / DENOMINATOR;
+    uint256 public constant INVESTOR_SUPPLY = (TOTAL_SUPPLY * INVESTOR_PERCENT) / DENOMINATOR;
+    uint256 public constant COMMUNITY_SUPPLY = (TOTAL_SUPPLY * COMMUNITY_PERCENT) / DENOMINATOR;
+    uint256 public constant TREASURY_SUPPLY = (TOTAL_SUPPLY * TREASURY_PERCENT) / DENOMINATOR;
+    uint256 public constant PUBLIC_SALE_SUPPLY = (TOTAL_SUPPLY * PUBLIC_SALE_PERCENT) / DENOMINATOR;
+
     uint256 public tgeTimestamp;
     bool public tgeOccurred;
 
@@ -76,8 +92,8 @@ contract TokenVestingSchedule is Ownable {
         // Initialize categories with allocations
         categories[TEAM] = Category({
             name: "Team",
-            allocation: 2000, // 20%
-            totalAllocated: (TOTAL_SUPPLY * 20) / 100,
+            allocation: TEAM_PERCENT, // 20%
+            totalAllocated: TEAM_SUPPLY,
             totalMinted: 0,
             totalClaimed: 0,
             isInitialized: true,
@@ -86,8 +102,8 @@ contract TokenVestingSchedule is Ownable {
 
         categories[ADVISORS] = Category({
             name: "Advisors",
-            allocation: 500, // 5%
-            totalAllocated: (TOTAL_SUPPLY * 5) / 100,
+            allocation: ADVISOR_PERCENT, // 5%
+            totalAllocated: ADVISOR_SUPPLY,
             totalMinted: 0,
             totalClaimed: 0,
             isInitialized: true,
@@ -96,8 +112,8 @@ contract TokenVestingSchedule is Ownable {
 
         categories[INVESTORS] = Category({
             name: "Investors",
-            allocation: 2000, // 20%
-            totalAllocated: (TOTAL_SUPPLY * 20) / 100,
+            allocation: INVESTOR_PERCENT, // 20%
+            totalAllocated: INVESTOR_SUPPLY,
             totalMinted: 0,
             totalClaimed: 0,
             isInitialized: true,
@@ -106,8 +122,8 @@ contract TokenVestingSchedule is Ownable {
 
         categories[COMMUNITY] = Category({
             name: "Community",
-            allocation: 2500, // 25%
-            totalAllocated: (TOTAL_SUPPLY * 25) / 100,
+            allocation: COMMUNITY_PERCENT, // 25%
+            totalAllocated: COMMUNITY_SUPPLY,
             totalMinted: 0,
             totalClaimed: 0,
             isInitialized: true,
@@ -116,8 +132,8 @@ contract TokenVestingSchedule is Ownable {
 
         categories[TREASURY] = Category({
             name: "Treasury",
-            allocation: 2000, // 20%
-            totalAllocated: (TOTAL_SUPPLY * 20) / 100,
+            allocation: TREASURY_PERCENT, // 20%
+            totalAllocated: TREASURY_SUPPLY,
             totalMinted: 0,
             totalClaimed: 0,
             isInitialized: true,
@@ -126,8 +142,8 @@ contract TokenVestingSchedule is Ownable {
 
         categories[PUBLIC_SALE] = Category({
             name: "Public_Sale",
-            allocation: 1000, // 10%
-            totalAllocated: (TOTAL_SUPPLY * 10) / 100,
+            allocation: PUBLIC_SALE_PERCENT, // 10%
+            totalAllocated: PUBLIC_SALE_SUPPLY,
             totalMinted: 0,
             totalClaimed: 0,
             isInitialized: true,
@@ -165,7 +181,7 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Add beneficiaries to categories
-    function AddBeneficiaries(
+    function addBeneficiaries(
         address[] calldata _beneficiaries,
         uint8[] calldata _categoryIds,
         uint256[] calldata _amounts
@@ -331,7 +347,7 @@ contract TokenVestingSchedule is Ownable {
         uint256 twoYears = 2 * 365 days;
 
         // Initial 20% unlock at TGE
-        uint256 initialUnlock = (beneficiary.amount * 20) / 100;
+        uint256 initialUnlock = (beneficiary.amount * 2000) / DENOMINATOR;
 
         if (timeSinceTGE < 0) {
             return 0;
@@ -381,7 +397,7 @@ contract TokenVestingSchedule is Ownable {
         uint256 twelveMonths = 365 days;
 
         // Initial 10% unlock at TGE
-        uint256 initialUnlock = (beneficiary.amount * 10) / 100;
+        uint256 initialUnlock = (beneficiary.amount * 1000) / DENOMINATOR;
 
         if (timeSinceTGE < 0) {
             return 0;

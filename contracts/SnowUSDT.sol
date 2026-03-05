@@ -6,6 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract SnowUSDT is ERC20 {
     constructor() ERC20("SnowUSDTToken", "SUSDT") {
       // Mints 1,000,000 tokens (adjusted for 18 decimals) to the deployer
-      _mint(msg.sender, 1000000 * 10 ** decimals());
+      _mint(msg.sender, 1_000_000_000 * (10 ** 3));
     }
 }
