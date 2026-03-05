@@ -21,12 +21,18 @@ contract TokenVestingSchedule is Ownable {
 
     uint256 public constant TOKEN_UNIT = 10 ** 3;
     uint256 public constant TOTAL_SUPPLY = 1_000_000_000 * TOKEN_UNIT;
-    uint256 public constant TEAM_SUPPLY = (TOTAL_SUPPLY * TEAM_PERCENT) / DENOMINATOR;
-    uint256 public constant ADVISOR_SUPPLY = (TOTAL_SUPPLY * ADVISOR_PERCENT) / DENOMINATOR;
-    uint256 public constant INVESTOR_SUPPLY = (TOTAL_SUPPLY * INVESTOR_PERCENT) / DENOMINATOR;
-    uint256 public constant COMMUNITY_SUPPLY = (TOTAL_SUPPLY * COMMUNITY_PERCENT) / DENOMINATOR;
-    uint256 public constant TREASURY_SUPPLY = (TOTAL_SUPPLY * TREASURY_PERCENT) / DENOMINATOR;
-    uint256 public constant PUBLIC_SALE_SUPPLY = (TOTAL_SUPPLY * PUBLIC_SALE_PERCENT) / DENOMINATOR;
+    uint256 public constant TEAM_SUPPLY =
+        (TOTAL_SUPPLY * TEAM_PERCENT) / DENOMINATOR;
+    uint256 public constant ADVISOR_SUPPLY =
+        (TOTAL_SUPPLY * ADVISOR_PERCENT) / DENOMINATOR;
+    uint256 public constant INVESTOR_SUPPLY =
+        (TOTAL_SUPPLY * INVESTOR_PERCENT) / DENOMINATOR;
+    uint256 public constant COMMUNITY_SUPPLY =
+        (TOTAL_SUPPLY * COMMUNITY_PERCENT) / DENOMINATOR;
+    uint256 public constant TREASURY_SUPPLY =
+        (TOTAL_SUPPLY * TREASURY_PERCENT) / DENOMINATOR;
+    uint256 public constant PUBLIC_SALE_SUPPLY =
+        (TOTAL_SUPPLY * PUBLIC_SALE_PERCENT) / DENOMINATOR;
 
     uint256 public tgeTimestamp;
     bool public tgeOccurred;
@@ -276,6 +282,8 @@ contract TokenVestingSchedule is Ownable {
             return _calculateTeamVesting(beneficiary);
         } else if (categoryId == ADVISORS) {
             return _calculateAdvisorVesting(beneficiary);
+        } else if (categoryId == INVESTORS) {
+            return _calculateInvestorVesting(beneficiary);
         } else if (categoryId == COMMUNITY) {
             return _calculateCommunityVesting(beneficiary);
         } else if (categoryId == TREASURY) {
@@ -301,6 +309,9 @@ contract TokenVestingSchedule is Ownable {
     function _calculateTeamVesting(
         Beneficiary memory beneficiary
     ) internal view returns (uint256) {
+        if (block.timestamp < tgeTimestamp) {
+            return 0;
+        }
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 oneYear = 365 days;
         uint256 fourYears = 4 * 365 days;
@@ -322,6 +333,9 @@ contract TokenVestingSchedule is Ownable {
     function _calculateAdvisorVesting(
         Beneficiary memory beneficiary
     ) internal view returns (uint256) {
+        if (block.timestamp < tgeTimestamp) {
+            return 0;
+        }
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 sixMonths = 180 days;
         uint256 twoYears = 2 * 365 days;
@@ -343,6 +357,9 @@ contract TokenVestingSchedule is Ownable {
     function _calculateInvestorVesting(
         Beneficiary memory beneficiary
     ) internal view returns (uint256) {
+        if (block.timestamp < tgeTimestamp) {
+            return 0;
+        }
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 twoYears = 2 * 365 days;
 
@@ -367,6 +384,9 @@ contract TokenVestingSchedule is Ownable {
     function _calculateCommunityVesting(
         Beneficiary memory beneficiary
     ) internal view returns (uint256) {
+        if (block.timestamp < tgeTimestamp) {
+            return 0;
+        }
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 fourYears = 4 * 365 days;
 
@@ -393,6 +413,9 @@ contract TokenVestingSchedule is Ownable {
     function _calculatePublicSaleVesting(
         Beneficiary memory beneficiary
     ) internal view returns (uint256) {
+        if (block.timestamp < tgeTimestamp) {
+            return 0;
+        }
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 twelveMonths = 365 days;
 
@@ -466,7 +489,7 @@ contract TokenVestingSchedule is Ownable {
         // Mint tokens
         snowToken.mint(address(this), amount);
 
-        // Updatee records
+        // Update records
         treasuryBeneficiary.minted += amount;
         treasuryBeneficiary.claimed += amount; // Treasury claims immediately
         treasury.totalMinted += amount;
