@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 
 import dotenv from "dotenv";
+import { verifyContract } from "../utils";
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ async function main() {
   console.log("Deploying Vesting Contract...");
   const vestingContract = await VestingContract.deploy(
     process.env.SNOW_TOKEN_ADDRESS ||
-      "0x41FeEA17abf6Aa452BeC69722E967fAbbe4bAbE4",
+      "0x577e378A5b87c3c0B18773e71Eb81A818dA56de8",
   );
 
   await vestingContract.waitForDeployment();
@@ -21,6 +22,15 @@ async function main() {
     "VestingContract deployed to: ",
     await vestingContract.getAddress(),
   );
+
+  console.log("Waiting for block confirmations...");
+  await vestingContract.deploymentTransaction()?.wait(5);
+
+  console.log("Waiting for verification...");
+  await verifyContract(await vestingContract.getAddress(), [
+    process.env.SNOW_TOKEN_ADDRESS ||
+      "0x577e378A5b87c3c0B18773e71Eb81A818dA56de8",
+  ]);
 }
 
 main()

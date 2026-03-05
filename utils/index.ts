@@ -1,31 +1,18 @@
-import hre from "hardhat";
+import { run } from "hardhat";
 
-export async function verifyContract(
-  name: string,
-  address: string,
-): Promise<boolean> {
+export async function verifyContract(contractAddress: string, args: any[]) {
+  console.log("Verifying contract...");
   try {
-    console.log(`\nVerifying ${name}...`);
-
-    await hre.run("verify:verify", {
-      address: address,
-      constructorArguments: [],
+    await run("verify:verify", {
+      address: contractAddress,
+      constructorArguments: args,
     });
-
-    console.log(`✅ ${name} verified successfully!`);
-
-    return true;
-  } catch (error) {
-    if (error instanceof Error) {
-      if ("message" in error) {
-        if (error.message.toLowerCase().includes("already verified")) {
-          console.log(`✅ ${name} is already verified`);
-        } else {
-          console.error(`❌ ${name} verification failed:`, error.message);
-        }
-      }
+    console.log("Verified successfully!");
+  } catch (e: any) {
+    if (e.message.toLowerCase().includes("already verified")) {
+      console.log("Already verified!");
+    } else {
+      console.log(e);
     }
-
-    return false;
   }
 }
