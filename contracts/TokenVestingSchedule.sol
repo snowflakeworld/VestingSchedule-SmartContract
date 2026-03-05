@@ -221,7 +221,13 @@ contract TokenVestingSchedule is Ownable {
         require(!category.mintingComplete, "Category minting complete");
 
         uint256 claimable = _calculateClaimableAmount(beneficiary);
-        uint256 mintable = max(0, min(claimable - beneficiary.minted, category.totalAllocated - category.totalMinted));
+        uint256 mintable = max(
+            0,
+            min(
+                claimable - beneficiary.minted,
+                category.totalAllocated - category.totalMinted
+            )
+        );
 
         if (mintable > 0) {
             // Mint tokens
@@ -318,7 +324,9 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Investors: 2 years vesting with partial unlock at TGE (20% at TGE, then linear)
-    function _calculateInvestorVesting(Beneficiary memory beneficiary) internal view returns (uint256) {
+    function _calculateInvestorVesting(
+        Beneficiary memory beneficiary
+    ) internal view returns (uint256) {
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 twoYears = 2 * 365 days;
 
@@ -340,7 +348,9 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Community: Gradual release over 4 years (linear vesting)
-    function _calculateCommunityVesting(Beneficiary memory beneficiary) internal view returns (uint256) {
+    function _calculateCommunityVesting(
+        Beneficiary memory beneficiary
+    ) internal view returns (uint256) {
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 fourYears = 4 * 365 days;
 
@@ -364,7 +374,9 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Public Sale: 10% at TGE, rest over 6-12months
-    function _calculatePublicSaleVesting(Beneficiary memory beneficiary) internal view returns (uint256) {
+    function _calculatePublicSaleVesting(
+        Beneficiary memory beneficiary
+    ) internal view returns (uint256) {
         uint256 timeSinceTGE = block.timestamp - tgeTimestamp;
         uint256 twelveMonths = 365 days;
 
@@ -382,7 +394,8 @@ contract TokenVestingSchedule is Ownable {
         // Linear vesting from month 0 to 12
         uint256 remainingAmount = beneficiary.amount - initialUnlock;
 
-        return initialUnlock + (((remainingAmount * timeSinceTGE)) / twelveMonths);
+        return
+            initialUnlock + (((remainingAmount * timeSinceTGE)) / twelveMonths);
     }
 
     // Claim tokens (automatically mints if needed)
@@ -409,18 +422,30 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Treasury unlock function (only owner can call)
-    function treasuryUnlock(address to, uint256 amount) external onlyOwner tgeSet {
+    function treasuryUnlock(
+        address to,
+        uint256 amount
+    ) external onlyOwner tgeSet {
         require(to != address(0), "Invalid address");
 
         // Find treasury beneficiary
         Beneficiary storage treasuryBeneficiary = beneficiaries[to];
-        require(treasuryBeneficiary.categoryId == TREASURY, "Not treasury beneficiary");
-        require(treasuryBeneficiary.amount >= treasuryBeneficiary.minted + amount, "Exceeds allocation");
+        require(
+            treasuryBeneficiary.categoryId == TREASURY,
+            "Not treasury beneficiary"
+        );
+        require(
+            treasuryBeneficiary.amount >= treasuryBeneficiary.minted + amount,
+            "Exceeds allocation"
+        );
 
         // Mint treasury tokens if needed
         Category storage treasury = categories[TREASURY];
         require(!treasury.mintingComplete, "Treasury minting complete");
-        require(treasury.totalMinted + amount <= treasury.totalAllocated, "Exceeds category allocation");
+        require(
+            treasury.totalMinted + amount <= treasury.totalAllocated,
+            "Exceeds category allocation"
+        );
 
         // Mint tokens
         snowToken.mint(address(this), amount);
@@ -445,11 +470,17 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Batch mint for a category (for administrative purposes)
-    function batchMintCategory(uint8 categoryId, uint256 amount) external onlyOwner {
+    function batchMintCategory(
+        uint8 categoryId,
+        uint256 amount
+    ) external onlyOwner {
         require(categories[categoryId].isInitialized, "Invalid category");
         Category storage category = categories[categoryId];
         require(!category.mintingComplete, "Category minting complete");
-        require(category.totalMinted + amount <= category.totalAllocated, "Exceeds allocation");
+        require(
+            category.totalMinted + amount <= category.totalAllocated,
+            "Exceeds allocation"
+        );
 
         snowToken.mint(address(this), amount);
 
@@ -468,25 +499,47 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Get total minted for a category
-    function getCategoryMinted(uint8 categoryId) external view returns (uint256) {
+    function getCategoryMinted(
+        uint8 categoryId
+    ) external view returns (uint256) {
         return categories[categoryId].totalMinted;
     }
 
     // Get total claimed for a category
-    function getCategoryClaimed(uint8 categoryId) external view returns (uint256) {
+    function getCategoryClaimed(
+        uint8 categoryId
+    ) external view returns (uint256) {
         return categories[categoryId].totalClaimed;
     }
 
     // Check if category is fully minted
-    function isCategoryFullyMinted(uint8 categoryId) external view returns (bool) {
+    function isCategoryFullyMinted(
+        uint8 categoryId
+    ) external view returns (bool) {
         return categories[categoryId].mintingComplete;
     }
 
     // Get beneficiary info
-    function getBeneficiaryInfo(address _beneficiary) external view returns (uint8 categoryId, uint256 amount, uint256 minted, uint256 claimed, uint256 claimable, uint256 pendingMint, bool isActive) {
+    function getBeneficiaryInfo(
+        address _beneficiary
+    )
+        external
+        view
+        returns (
+            uint8 categoryId,
+            uint256 amount,
+            uint256 minted,
+            uint256 claimed,
+            uint256 claimable,
+            uint256 pendingMint,
+            bool isActive
+        )
+    {
         Beneficiary memory b = beneficiaries[_beneficiary];
         uint256 totalClaimable = tgeOccurred ? _calculateClaimableAmount(b) : 0;
-        uint256 pendingMintAmount = totalClaimable > b.minted ? totalClaimable - b.minted : 0;
+        uint256 pendingMintAmount = totalClaimable > b.minted
+            ? totalClaimable - b.minted
+            : 0;
         uint256 claimableNow = b.minted - b.claimed;
 
         return (
@@ -501,7 +554,9 @@ contract TokenVestingSchedule is Ownable {
     }
 
     // Get remaining to mint for a category
-    function getCategoryRemainingToMint(uint8 categoryId) external view returns (uint256) {
+    function getCategoryRemainingToMint(
+        uint8 categoryId
+    ) external view returns (uint256) {
         Category memory category = categories[categoryId];
         return category.totalAllocated - category.totalMinted;
     }
