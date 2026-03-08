@@ -147,7 +147,7 @@ contract TokenVestingSchedule is Ownable {
         });
 
         categories[PUBLIC_SALE] = Category({
-            name: "Public_Sale",
+            name: "PublicSale",
             allocation: PUBLIC_SALE_PERCENT, // 10%
             totalAllocated: PUBLIC_SALE_SUPPLY,
             totalMinted: 0,
@@ -579,14 +579,14 @@ contract TokenVestingSchedule is Ownable {
         uint256 pendingMintAmount = totalClaimable > b.minted
             ? totalClaimable - b.minted
             : 0;
-        uint256 claimableNow = b.minted - b.claimed;
+        uint256 currentClaimableAmount = b.minted - b.claimed;
 
         return (
             b.categoryId,
             b.amount,
             b.minted,
             b.claimed,
-            claimableNow,
+            currentClaimableAmount,
             pendingMintAmount,
             b.isActive
         );
