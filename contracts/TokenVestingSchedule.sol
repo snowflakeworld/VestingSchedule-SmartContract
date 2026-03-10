@@ -481,7 +481,7 @@ contract TokenVestingSchedule is Ownable {
 
         // Mint treasury tokens if needed
         Category storage treasury = categories[TREASURY];
-        
+
         require(!treasury.mintingComplete, "Treasury minting complete");
         require(
             treasury.totalMinted + amount <= treasury.totalAllocated,
